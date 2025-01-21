@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -82,20 +83,37 @@ public class EmployeeService {
 				.collect(Collectors.toList());
 	}
 
-	@SuppressWarnings("unchecked")
-	public Page<EmployeeResponse> getEmpListByPageWise(int pageNo, int PageSize) {
-		Pageable pageable = PageRequest.of(pageNo, PageSize);
-		Page<Employee> employeeList = employeeRepository.findAll(pageable);
-		return (Page<EmployeeResponse>) employeeList.stream().map(c1 -> modelMapper.map(c1, EmployeeResponse.class))
-				.collect(Collectors.toList());
+	
+	public Page<EmployeeResponse> getEmpListByPageWise(int pageNo, int pageSize) {
+	    Pageable pageable = PageRequest.of(pageNo, pageSize);
+	    
+	    // Get the paginated list of employees
+	    Page<Employee> employeeList = employeeRepository.findAll(pageable);
+	    
+	    // Map the Employee entities to EmployeeResponse DTOs
+	    List<EmployeeResponse> employeeResponseList = employeeList.stream()
+	            .map(employee -> modelMapper.map(employee, EmployeeResponse.class))
+	            .collect(Collectors.toList());
+	    
+	    // Return a new Page<EmployeeResponse> using the PageImpl constructor
+	    return new PageImpl<>(employeeResponseList, pageable, employeeList.getTotalElements());
 	}
 
-	@SuppressWarnings("unchecked")
-	public Page<EmployeeResponse> getEmpListByPageWiseBySortField(int pageNo, int PageSize, String field) {
-		Pageable pageable = PageRequest.of(pageNo, PageSize, Sort.by(field));
-		Page<Employee> employeeList = employeeRepository.findAll(pageable);
-		return (Page<EmployeeResponse>) employeeList.stream().map(c1 -> modelMapper.map(c1, EmployeeResponse.class))
-				.collect(Collectors.toList());
+	
+	public Page<EmployeeResponse> getEmpListByPageWiseBySortField(int pageNo, int pageSize, String field) {
+	    // Create a Pageable object with sorting by the given field
+	    Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(field));
+	    
+	    // Get the paginated list of employees
+	    Page<Employee> employeeList = employeeRepository.findAll(pageable);
+	    
+	    // Map the Employee entities to EmployeeResponse DTOs
+	    List<EmployeeResponse> employeeResponseList = employeeList.stream()
+	            .map(employee -> modelMapper.map(employee, EmployeeResponse.class))
+	            .collect(Collectors.toList());
+	    
+	    // Return a new Page<EmployeeResponse> using the PageImpl constructor
+	    return new PageImpl<>(employeeResponseList, pageable, employeeList.getTotalElements());
 	}
 
 }
